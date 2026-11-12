@@ -4,7 +4,7 @@ Upload a resume and a job post. A retrieval agent scores the fit and cites the r
 
 Repository: [github.com/Anshul3977/job-fit-rag-agent](https://github.com/Anshul3977/job-fit-rag-agent)
 
-**Live demo:** not deployed yet. After a free-tier deploy, replace this line with the Render URL. Screenshots below are from a local run with the deterministic scorer (no `GROQ_API_KEY`) and local MiniLM embeddings.
+**Live demo:** [job-fit-rag-agent.onrender.com](https://job-fit-rag-agent.onrender.com). It runs on Render's free tier, so the first request after inactivity may take ~30–60s to wake up. The public demo runs the deterministic scorer (no LLM key configured), so it works best with the built-in sample resume and job descriptions. Screenshots below are from a local run with that scorer and local MiniLM embeddings.
 
 ![Empty state](docs/screenshots/01-empty.png)
 
@@ -214,7 +214,7 @@ The Blueprint prompts for `GROQ_API_KEY` (`sync: false`, so the value stays in t
 | `EMBEDDING_MODEL` | `sentence-transformers/all-MiniLM-L6-v2` |
 | `VECTOR_BACKEND` | `chroma` |
 
-Free instances spin down and have no persistent disk, so SQLite resets on redeploy. The first request after sleep can take about 30 seconds, and the first fit downloads MiniLM. Say that next to the live link.
+Free instances spin down and have no persistent disk, so SQLite resets on redeploy. The live service is [job-fit-rag-agent.onrender.com](https://job-fit-rag-agent.onrender.com). The first request after sleep can take about 30–60 seconds, and the first fit downloads MiniLM.
 
 ### Vercel (frontend only)
 
