@@ -1,0 +1,27 @@
+NOTE: Synthetic portfolio fixture. Priya Shah is not a real person.
+
+Priya Shah
+New graduate frontend engineer
+priya.shah.synthetic@example.com
+
+SUMMARY
+New-grad frontend engineer. I care about readable interfaces, keyboard access, and CSS that does not collapse on a phone.
+
+EXPERIENCE
+Frontend intern, Paperkite Studio (synthetic) — Summer 2025
+- Shipped React and TypeScript features for a scheduling product, including empty, loading, and error states.
+- Rebuilt the settings page layout in CSS so it worked at 360px and on a desktop monitor.
+- Fixed focus order and labels on the booking form after an accessibility review.
+- The marketing site used Next.js. I did not work on the API, and I have not written a backend service.
+
+PROJECTS
+Recipe box
+- A Next.js app with a typed client and responsive cards.
+- No backend of my own; it reads a checked-in JSON file. Styling is hand-written CSS.
+
+SKILLS
+TypeScript, React, Next.js, CSS, HTML, accessibility, git
+
+EDUCATION
+B.S. Computer Science, Example State University, 2026
+Coursework: human-computer interaction, web development, data structures.

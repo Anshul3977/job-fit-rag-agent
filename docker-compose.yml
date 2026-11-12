@@ -1,0 +1,50 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8741:8741"
+    environment:
+      PORT: "8741"
+      ENV: dev
+      DEBUG_ROUTES: "true"
+      DATABASE_URL: sqlite:////data/jobfit.db
+      CHROMA_DIR: /data/chroma
+      # Bind-mounted so a model downloaded on the host is reused, and so a
+      # later download survives container rebuilds. Hugging Face must be
+      # reachable the first time this directory is empty.
+      EMBEDDING_CACHE_DIR: /models
+      LLM_PROVIDER: auto
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - jobfit-data:/data
+      - ./data/models:/models
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8741/health')",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  postgres:
+    profiles: ["postgres"]
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: jobfit
+      POSTGRES_PASSWORD: jobfit
+      POSTGRES_DB: jobfit
+    ports:
+      - "54329:5432"
+    volumes:
+      - jobfit-pg:/var/lib/postgresql/data
+
+volumes:
+  jobfit-data:
+  jobfit-pg:

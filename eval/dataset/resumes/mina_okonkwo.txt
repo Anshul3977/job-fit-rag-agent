@@ -1,0 +1,28 @@
+NOTE: Synthetic portfolio fixture. Mina Okonkwo is not a real person.
+
+Mina Okonkwo
+New graduate machine learning engineer
+mina.okonkwo.synthetic@example.com
+
+SUMMARY
+New-grad machine learning engineer focused on retrieval and evaluation. Comfortable owning a Python experiment from dataset to error analysis. Production web frameworks are not my main tool.
+
+EXPERIENCE
+Research intern, Lumen Language Lab (synthetic) — Spring 2025
+- Fine-tuned a Hugging Face transformer classifier in PyTorch on support-ticket text and wrote an error analysis the team could read.
+- Built a retrieval-augmented answering pipeline in Python: chunking, embeddings, and a prompt that had to quote the retrieved passage.
+- Reported accuracy on a labeled evaluation set of 80 questions instead of showing a single demo.
+- Stored the labeled questions in PostgreSQL. Wrote pytest for the citation checker. Packaged the experiment with Docker so another intern could rerun it.
+- The demo server was a short Flask script. I have not shipped a FastAPI service.
+
+PROJECTS
+Citation checker
+- Given a model answer and a source paragraph, the tool flags claims that do not appear in the source.
+- Used in the lab to review RAG outputs before a paper draft. The stack was Python, pandas, and PyTorch.
+
+SKILLS
+Python, PyTorch, Hugging Face, pandas, RAG, embeddings, evaluation, Flask, PostgreSQL, Docker, pytest, git
+
+EDUCATION
+B.S. Computer Science, Example State University, 2026
+Coursework: machine learning, natural language processing, databases.

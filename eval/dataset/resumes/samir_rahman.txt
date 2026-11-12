@@ -1,0 +1,26 @@
+NOTE: Synthetic portfolio fixture. Samir Rahman is not a real person.
+
+Samir Rahman
+New graduate
+samir.rahman.synthetic@example.com
+
+SUMMARY
+Computer science graduate with coursework in data structures, an introductory Java web tutorial, and a helpdesk campus job. I have not shipped a production service.
+
+EXPERIENCE
+IT helpdesk student employee, Example State University — 2024 to 2025
+- Reset passwords, imaged laptops, and wrote short notes in the ticket tool.
+- No software development in this role.
+
+PROJECTS
+Coursework: Spring intro
+- Followed a tutorial to stand up a Spring Boot hello-world endpoint in Java.
+- The database lab used basic SQL selects against a sample schema.
+- I have not used Docker, Kubernetes, React, Python, or a machine learning library.
+
+SKILLS
+Java, Spring Boot, basic SQL, git, Windows, customer support
+
+EDUCATION
+B.S. Computer Science, Example State University, 2026
+Coursework: data structures, intro databases, computer networks.

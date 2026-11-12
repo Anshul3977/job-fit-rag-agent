@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "synthetic": true,
+    "description": "Hand-labeled synthetic resume/job pairs. None of these people or openings are real.",
+    "rubric": "strong: every required technology is visibly present. maybe: a real subset of the required technologies is present and at least one required technology is missing. skip: the required stack is largely absent. Preferred items do not by themselves change the verdict.",
+    "labeled_before_scoring": true
+  },
+  "resumes": [
+    {"id": "avery_chen", "file": "resumes/avery_chen.txt"},
+    {"id": "mina_okonkwo", "file": "resumes/mina_okonkwo.txt"},
+    {"id": "luis_ortega", "file": "resumes/luis_ortega.txt"},
+    {"id": "priya_shah", "file": "resumes/priya_shah.txt"},
+    {"id": "samir_rahman", "file": "resumes/samir_rahman.txt"}
+  ],
+  "jobs": [
+    {"id": "backend_python", "file": "jobs/backend_python.txt"},
+    {"id": "ai_engineer", "file": "jobs/ai_engineer.txt"},
+    {"id": "platform", "file": "jobs/platform.txt"},
+    {"id": "frontend", "file": "jobs/frontend.txt"}
+  ],
+  "pairs": [
+    {"id": "p01", "resume": "avery_chen", "job": "backend_python", "verdict": "strong", "evidence_terms": ["FastAPI", "PostgreSQL", "pytest", "Docker"], "expected_hits": ["Python", "FastAPI", "PostgreSQL", "Docker", "pytest"], "expected_misses": []},
+    {"id": "p02", "resume": "avery_chen", "job": "ai_engineer", "verdict": "maybe", "evidence_terms": ["Python", "retrieval-augmented", "MiniLM"], "expected_hits": ["Python", "RAG", "embeddings"], "expected_misses": ["evaluation"]},
+    {"id": "p03", "resume": "avery_chen", "job": "platform", "verdict": "maybe", "evidence_terms": ["Docker", "Linux", "GitHub Actions"], "expected_hits": ["Docker", "Linux", "CI/CD"], "expected_misses": ["Kubernetes"]},
+    {"id": "p04", "resume": "avery_chen", "job": "frontend", "verdict": "maybe", "evidence_terms": ["React", "TypeScript"], "expected_hits": ["React", "TypeScript"], "expected_misses": ["CSS"]},
+    {"id": "p05", "resume": "mina_okonkwo", "job": "backend_python", "verdict": "maybe", "evidence_terms": ["Python", "PostgreSQL", "Docker", "pytest"], "expected_hits": ["Python", "PostgreSQL", "Docker", "pytest"], "expected_misses": ["FastAPI"]},
+    {"id": "p06", "resume": "mina_okonkwo", "job": "ai_engineer", "verdict": "strong", "evidence_terms": ["PyTorch", "embeddings", "evaluation"], "expected_hits": ["Python", "RAG", "embeddings", "evaluation"], "expected_misses": []},
+    {"id": "p07", "resume": "mina_okonkwo", "job": "platform", "verdict": "skip", "evidence_terms": ["Docker"], "expected_hits": ["Docker"], "expected_misses": ["Kubernetes", "Linux", "CI/CD"]},
+    {"id": "p08", "resume": "mina_okonkwo", "job": "frontend", "verdict": "skip", "evidence_terms": [], "expected_hits": [], "expected_misses": ["React", "TypeScript", "CSS"]},
+    {"id": "p09", "resume": "luis_ortega", "job": "backend_python", "verdict": "skip", "evidence_terms": ["PostgreSQL", "Docker"], "expected_hits": ["PostgreSQL", "Docker"], "expected_misses": ["Python", "FastAPI", "pytest"]},
+    {"id": "p10", "resume": "luis_ortega", "job": "ai_engineer", "verdict": "skip", "evidence_terms": [], "expected_hits": [], "expected_misses": ["Python", "RAG", "embeddings", "evaluation"]},
+    {"id": "p11", "resume": "luis_ortega", "job": "platform", "verdict": "strong", "evidence_terms": ["Kubernetes", "Docker", "Terraform", "Go"], "expected_hits": ["Kubernetes", "Docker", "Linux", "CI/CD"], "expected_misses": []},
+    {"id": "p12", "resume": "luis_ortega", "job": "frontend", "verdict": "skip", "evidence_terms": [], "expected_hits": [], "expected_misses": ["React", "TypeScript", "CSS"]},
+    {"id": "p13", "resume": "priya_shah", "job": "backend_python", "verdict": "skip", "evidence_terms": [], "expected_hits": [], "expected_misses": ["Python", "FastAPI", "PostgreSQL", "Docker", "pytest"]},
+    {"id": "p14", "resume": "priya_shah", "job": "ai_engineer", "verdict": "skip", "evidence_terms": [], "expected_hits": [], "expected_misses": ["Python", "RAG", "embeddings", "evaluation"]},
+    {"id": "p15", "resume": "priya_shah", "job": "platform", "verdict": "skip", "evidence_terms": [], "expected_hits": [], "expected_misses": ["Kubernetes", "Docker", "Linux", "CI/CD"]},
+    {"id": "p16", "resume": "priya_shah", "job": "frontend", "verdict": "strong", "evidence_terms": ["React", "TypeScript", "CSS", "Next.js"], "expected_hits": ["React", "TypeScript", "CSS"], "expected_misses": []},
+    {"id": "p17", "resume": "samir_rahman", "job": "backend_python", "verdict": "skip", "evidence_terms": [], "expected_hits": [], "expected_misses": ["Python", "FastAPI", "PostgreSQL", "Docker", "pytest"]},
+    {"id": "p18", "resume": "samir_rahman", "job": "ai_engineer", "verdict": "skip", "evidence_terms": [], "expected_hits": [], "expected_misses": ["Python", "RAG", "embeddings", "evaluation"]},
+    {"id": "p19", "resume": "samir_rahman", "job": "platform", "verdict": "skip", "evidence_terms": [], "expected_hits": [], "expected_misses": ["Kubernetes", "Docker", "Linux", "CI/CD"]},
+    {"id": "p20", "resume": "samir_rahman", "job": "frontend", "verdict": "skip", "evidence_terms": [], "expected_hits": [], "expected_misses": ["React", "TypeScript", "CSS"]}
+  ],
+  "retrieval_probes": [
+    {"id": "probe_fastapi", "resume": "avery_chen", "query": "Has this person built HTTP APIs in Python?", "expect_terms": ["FastAPI"], "k": 5},
+    {"id": "probe_docker", "resume": "avery_chen", "query": "container images and local orchestration", "expect_terms": ["Docker"], "k": 5},
+    {"id": "probe_rag", "resume": "avery_chen", "query": "finding relevant passages before answering a question", "expect_terms": ["retrieval-augmented"], "k": 5},
+    {"id": "probe_eval", "resume": "mina_okonkwo", "query": "How did they measure whether model answers were any good?", "expect_terms": ["evaluation"], "k": 5},
+    {"id": "probe_k8s", "resume": "luis_ortega", "query": "orchestrating containers across a cluster", "expect_terms": ["Kubernetes"], "k": 5},
+    {"id": "probe_go", "resume": "luis_ortega", "query": "a statically typed language used for network services", "expect_terms": ["Go"], "k": 5},
+    {"id": "probe_ui", "resume": "priya_shah", "query": "component-based interfaces in a typed frontend language", "expect_terms": ["React", "TypeScript"], "k": 5},
+    {"id": "probe_css", "resume": "priya_shah", "query": "layout and styling that survive a narrow phone screen", "expect_terms": ["CSS"], "k": 5}
+  ]
+}

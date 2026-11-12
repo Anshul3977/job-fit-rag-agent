@@ -1,0 +1,28 @@
+NOTE: Synthetic portfolio fixture. Luis Ortega is not a real person.
+
+Luis Ortega
+New graduate platform engineer
+luis.ortega.synthetic@example.com
+
+SUMMARY
+New-grad who likes Linux, containers, and the path from a merge to a running service. Most of my code is Go.
+
+EXPERIENCE
+Platform intern, Harbor Cloud (synthetic) — Summer 2025
+- Maintained Kubernetes deployments for three internal services, including liveness probes and resource requests.
+- Wrote Terraform for a staging network and a managed PostgreSQL instance.
+- Built a small Go service that exposes health and talks to another service over gRPC.
+- Images were built with Docker and published by GitHub Actions on tagged commits.
+- Debugged stuck rollouts on Linux hosts. I script the occasional log tail, but I have not built a Python web product.
+
+PROJECTS
+Homelab cluster
+- Three nodes, Kubernetes, and a private container registry.
+- Documented the bootstrap so a classmate could rebuild it from Docker images.
+
+SKILLS
+Go, Kubernetes, Docker, Terraform, gRPC, PostgreSQL, GitHub Actions, Linux, bash, git
+
+EDUCATION
+B.S. Computer Science, Example State University, 2026
+Coursework: operating systems, computer networks, distributed systems.

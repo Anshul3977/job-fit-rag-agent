@@ -1,0 +1,33 @@
+[project]
+name = "job-fit-rag-agent"
+version = "1.0.0"
+description = "Retrieval agent that scores a resume against a job post and cites the evidence."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Anshul Palarpwar" }]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 110
+src = ["app", "tests", "eval"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+# B008 flags FastAPI's Depends/File/Form defaults, which are the framework's API.
+# B905 flags zip() on sequences whose lengths are already paired by construction.
+ignore = ["B008", "B905"]
+
+[tool.ruff.lint.per-file-ignores]
+"eval/run_eval.py" = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"

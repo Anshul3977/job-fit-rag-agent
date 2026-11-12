@@ -1,0 +1,17 @@
+.venv
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.ruff_cache
+.git
+.env
+data
+frontend/node_modules
+frontend/dist
+tests
+docs
+*.md
+!README.md
+agent-tools
+terminals
+uploads

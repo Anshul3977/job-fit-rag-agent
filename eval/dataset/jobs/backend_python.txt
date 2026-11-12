@@ -1,0 +1,23 @@
+NOTE: Synthetic job post, written for the labeled eval set. Not a real opening.
+
+Backend Engineer
+Northwind Labs (synthetic posting)
+
+ABOUT
+We are hiring a new-grad backend engineer to own small HTTP services used by internal tools.
+
+RESPONSIBILITIES
+- Design and ship JSON APIs.
+- Write tests for the failure cases, not only the happy path.
+- Keep the service bootable with containers for the rest of the team.
+
+REQUIREMENTS
+- Python as the main language for service code
+- FastAPI for HTTP APIs
+- PostgreSQL for the primary datastore
+- Docker for local and deployed runs
+- pytest or another automated test suite you wrote yourself
+
+NICE TO HAVE
+- GitHub Actions or another CI/CD pipeline
+- AWS experience running the service

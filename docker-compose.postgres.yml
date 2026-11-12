@@ -1,0 +1,9 @@
+# Local only. The password is a development default, not a production secret.
+# docker compose -f docker-compose.yml -f docker-compose.postgres.yml --profile postgres up --build
+services:
+  app:
+    environment:
+      DATABASE_URL: postgresql+psycopg://jobfit:jobfit@postgres:5432/jobfit
+      VECTOR_BACKEND: pgvector
+    depends_on:
+      - postgres

@@ -1,0 +1,20 @@
+NOTE: Synthetic job post, written for the labeled eval set. Not a real opening.
+
+Frontend Engineer
+Paperkite Studio (synthetic posting)
+
+ABOUT
+We build the product UI. The API is owned by another team.
+
+RESPONSIBILITIES
+- Ship interface changes that work on a phone and a desktop monitor.
+- Leave the UI usable with a keyboard.
+
+REQUIREMENTS
+- React for product UI
+- TypeScript rather than untyped JavaScript
+- CSS you wrote, not only a component library's defaults
+
+NICE TO HAVE
+- Next.js
+- accessibility work such as focus order and labels

@@ -1,0 +1,30 @@
+NOTE: Synthetic portfolio fixture. Avery Chen is not a real person.
+
+Avery Chen
+New graduate software engineer
+Austin, TX
+avery.chen.synthetic@example.com
+
+SUMMARY
+New-grad software engineer who builds small HTTP services in Python and writes tests before calling a feature done. Looking for a backend role that ships APIs used by real clients.
+
+EXPERIENCE
+Backend intern, Northwind Labs (synthetic) — Summer 2025
+- Built internal REST endpoints with FastAPI and SQLAlchemy on PostgreSQL, including pagination and request validation with Pydantic.
+- Containerized the service with Docker and a compose file so other interns could boot it on Linux.
+- Added pytest coverage for the billing API, including failure cases for empty payloads.
+- Wired GitHub Actions to run the test suite on every pull request.
+
+PROJECTS
+Campus FAQ bot
+- Built a retrieval-augmented FAQ bot: chunked the student handbook, embedded passages with sentence-transformers MiniLM, and ranked them with cosine similarity.
+- Hand-checked 30 questions and marked when the answer was not supported by a retrieved passage.
+- Wrapped the retriever in a small FastAPI service.
+- Added a React and TypeScript page that lists the retrieved passages. It was one page, not a designed marketing site.
+
+SKILLS
+Python, FastAPI, SQLAlchemy, Pydantic, PostgreSQL, Docker, pytest, GitHub Actions, REST, React, TypeScript, git, Linux
+
+EDUCATION
+B.S. Computer Science, Example State University, 2026
+Coursework: databases, operating systems, a machine learning survey that did not include a research project.

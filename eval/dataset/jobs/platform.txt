@@ -1,0 +1,21 @@
+NOTE: Synthetic job post, written for the labeled eval set. Not a real opening.
+
+Platform Engineer
+Harbor Cloud (synthetic posting)
+
+ABOUT
+The platform team keeps services running on a cluster.
+
+RESPONSIBILITIES
+- Own deployment manifests and the path from merge to a running pod.
+- Debug hosts when a rollout sticks.
+
+REQUIREMENTS
+- Kubernetes for deploying services
+- Docker for building images
+- Linux as a daily environment
+- CI/CD such as GitHub Actions
+
+NICE TO HAVE
+- Terraform
+- Go for internal tooling

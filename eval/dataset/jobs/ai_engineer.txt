@@ -1,0 +1,21 @@
+NOTE: Synthetic job post, written for the labeled eval set. Not a real opening.
+
+AI Engineer
+Lumen Applied (synthetic posting)
+
+ABOUT
+New-grad role building retrieval systems that have to show their sources.
+
+RESPONSIBILITIES
+- Build retrieval features and measure whether the answers hold up.
+- Keep the Python experiment reproducible for the next person.
+
+REQUIREMENTS
+- Python for the application and the experiments
+- RAG, meaning a retrieval-augmented generation pipeline you actually built
+- embeddings for the documents you retrieve over
+- evaluation of answer quality on a labeled set, not a single demo
+
+NICE TO HAVE
+- PyTorch or Hugging Face model work
+- FastAPI as the service layer
