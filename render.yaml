@@ -1,0 +1,29 @@
+# Render Blueprint. Free Docker web service, 512 MB.
+# Dashboard: New > Blueprint, select this repo. Render prompts for GROQ_API_KEY.
+services:
+  - type: web
+    name: job-fit-rag-agent
+    runtime: docker
+    plan: free
+    repo: https://github.com/Anshul3977/job-fit-rag-agent
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-20b
+      - key: LLM_PROVIDER
+        value: auto
+      - key: ENV
+        value: prod
+      - key: DEBUG_ROUTES
+        value: "false"
+      - key: EMBEDDING_BACKEND
+        value: fastembed
+      - key: EMBEDDING_MODEL
+        value: sentence-transformers/all-MiniLM-L6-v2
+      - key: VECTOR_BACKEND
+        value: chroma

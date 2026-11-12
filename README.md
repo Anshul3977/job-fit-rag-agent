@@ -2,7 +2,9 @@
 
 Upload a resume and a job post. A retrieval agent scores the fit and cites the resume lines it used.
 
-**Live demo:** not deployed yet. After a free-tier deploy, replace this line with the Hugging Face Space or Render URL. Screenshots below are from a local run with the deterministic scorer (no `GROQ_API_KEY`) and local MiniLM embeddings.
+Repository: [github.com/Anshul3977/job-fit-rag-agent](https://github.com/Anshul3977/job-fit-rag-agent)
+
+**Live demo:** not deployed yet. After a free-tier deploy, replace this line with the Render URL. Screenshots below are from a local run with the deterministic scorer (no `GROQ_API_KEY`) and local MiniLM embeddings.
 
 ![Empty state](docs/screenshots/01-empty.png)
 
@@ -87,6 +89,8 @@ Do not quote 100% as accuracy on real resumes. Twenty labeled pairs written to a
 ## Run it
 
 ```bash
+git clone https://github.com/Anshul3977/job-fit-rag-agent.git
+cd job-fit-rag-agent
 python3.11 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt -r requirements-dev.txt
@@ -176,7 +180,7 @@ No paid resources are required. Do not put a real resume on a public URL.
 ### Hugging Face Spaces (Docker, free CPU)
 
 1. Create a Space. SDK: Docker. Visibility: public. Hardware: CPU basic.
-2. Push this repo as the Space repo, or connect your Git remote.
+2. Point the Space at [Anshul3977/job-fit-rag-agent](https://github.com/Anshul3977/job-fit-rag-agent), or push that repo to the Space.
 3. The image listens on `$PORT`, default **7860**, which Spaces expects.
 4. Secrets and variables:
 
@@ -193,20 +197,24 @@ No paid resources are required. Do not put a real resume on a public URL.
 
 ### Render (Docker, free web service)
 
-1. New Web Service, environment Docker, connect the repo. Instance type: Free.
-2. Health check path: `/health`.
-3. Render sets `PORT`. The container already uses it.
-4. Environment:
+`render.yaml` is a Blueprint for this. In the Render dashboard: **New → Blueprint**, and select [Anshul3977/job-fit-rag-agent](https://github.com/Anshul3977/job-fit-rag-agent). It creates one Docker web service on the **free** plan (0.1 CPU, 512 MB), health check `/health`, branch `main`.
+
+Render sets `PORT`. The image runs `uvicorn --port $PORT` with one worker. After a fit with MiniLM loaded, the process was about **280 MiB** RSS, inside the 512 MB limit. OpenMP and OpenBLAS are pinned to one thread so they do not multiply that.
+
+The Blueprint prompts for `GROQ_API_KEY` (`sync: false`, so the value stays in the dashboard). Leave it empty to keep the deterministic scorer. The other variables are set in the file:
 
 | Name | Value |
 | --- | --- |
-| `GROQ_API_KEY` | optional |
+| `GROQ_API_KEY` | dashboard prompt, optional |
 | `GROQ_MODEL` | `openai/gpt-oss-20b` |
 | `LLM_PROVIDER` | `auto` |
 | `ENV` | `prod` |
 | `DEBUG_ROUTES` | `false` |
+| `EMBEDDING_BACKEND` | `fastembed` |
+| `EMBEDDING_MODEL` | `sentence-transformers/all-MiniLM-L6-v2` |
+| `VECTOR_BACKEND` | `chroma` |
 
-5. Free instances spin down. Say so next to the live link: the first request may take about 30 seconds.
+Free instances spin down and have no persistent disk, so SQLite resets on redeploy. The first request after sleep can take about 30 seconds, and the first fit downloads MiniLM. Say that next to the live link.
 
 ### Vercel (frontend only)
 
