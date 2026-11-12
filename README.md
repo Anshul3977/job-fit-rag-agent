@@ -26,8 +26,8 @@ flowchart LR
   chunk --> sql[(SQLite or Postgres)]
   chunk --> embed[MiniLM embeddings]
   embed --> chroma[(Chroma or pgvector)]
-  chroma --> graph
-  subgraph graph [LangGraph]
+  chroma --> agent
+  subgraph agent [LangGraph]
     direction LR
     extractReq[Extract requirements] --> retrieve[Retrieve per requirement]
     retrieve --> judge[Judge match]
@@ -35,7 +35,7 @@ flowchart LR
     check --> score[Score]
     score --> explain[Explain]
   end
-  graph --> runs[(runs table)]
+  agent --> runs[(runs table)]
   runs --> ui[React UI]
 ```
 
