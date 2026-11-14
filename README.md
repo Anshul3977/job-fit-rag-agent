@@ -4,7 +4,11 @@ Upload a resume and a job post. A retrieval agent scores the fit and cites the r
 
 Repository: [github.com/Anshul3977/job-fit-rag-agent](https://github.com/Anshul3977/job-fit-rag-agent)
 
-**Live demo:** [job-fit-rag-agent.onrender.com](https://job-fit-rag-agent.onrender.com). It runs on Render's free tier, so the first request after inactivity may take ~30–60s to wake up. The public demo runs the deterministic scorer (no LLM key configured), so it works best with the built-in sample resume and job descriptions. Screenshots below are from a local run with that scorer and local MiniLM embeddings.
+**Live demo:** [job-fit-rag-agent.onrender.com](https://job-fit-rag-agent.onrender.com). It runs on Render's free tier, so the first request after inactivity may take ~30–60s to wake up. The clip below is the rule-based scorer on that live site. No LLM key is configured there today, so the built-in sample resume and job descriptions are the best demo. Once a Groq key is set on Render, `LLM_PROVIDER=auto` uses Groq and falls back to the rule-based scorer if Groq returns invalid JSON or stays rate-limited. The key stays in the Render dashboard. It is not in this repo.
+
+![Rule-based scorer on the live site](docs/demo.gif)
+
+Stills below are a local run of that same scorer, with local MiniLM embeddings.
 
 ![Empty state](docs/screenshots/01-empty.png)
 
@@ -49,7 +53,7 @@ The score is not a free-form model opinion. The model, or the deterministic stan
 - Chroma by default. pgvector when `DATABASE_URL` is Postgres and `VECTOR_BACKEND=pgvector`.
 - Hybrid retrieval: dense search, plus a lexical backfill so a line that literally says Docker is not missed when the job says Docker.
 - LangGraph: extract requirements, retrieve evidence per requirement, judge, self-check, score, explain.
-- Groq when `GROQ_API_KEY` is set (`openai/gpt-oss-20b` by default). A deterministic scorer runs the same graph when the key is empty, so the demo and the tests do not need a network LLM.
+- Groq when `GROQ_API_KEY` is set (`openai/gpt-oss-20b` by default, `reasoning_effort` low). A deterministic scorer runs the same graph when the key is empty. Invalid JSON is retried once, then that step uses the deterministic scorer. A 429 backs off with `Retry-After` and, if Groq is still limited, the fit finishes on the deterministic scorer. The response `provider` field names who produced the judgments.
 - Negated mentions ("I have not shipped FastAPI") are not counted as experience.
 - Every fit is stored in SQL and can be read back from `GET /runs/{run_id}`.
 - Structured errors (`error_code`, `message`, `details`, `request_id`), upload limits, and a per-IP limit on `/fit`.
@@ -60,31 +64,19 @@ Python 3.11, FastAPI, Pydantic v2, SQLAlchemy, LangGraph, Chroma, fastembed, Gro
 
 ## Measured results
 
-From `python eval/run_eval.py` on 12 Nov 2026. Full write-up: [eval/results.md](eval/results.md). Raw rows: [eval/results.json](eval/results.json).
+Full write-up, including the pair table: [eval/results.md](eval/results.md). Run on 15 Nov 2026. Raw rows: [eval/results_groq.json](eval/results_groq.json) and [eval/results_deterministic.json](eval/results_deterministic.json).
 
-The set is **synthetic** (5 fictional resumes, 4 fictional postings, 20 pairs). Labels follow a technology-presence rubric: strong means every required technology is present, maybe means a real subset is present, skip means the required stack is largely absent. This is not a hiring-committee judgment and not a Groq run.
+The set is **synthetic**: 20 pairs (5 fictional resumes, 4 fictional postings). Labels follow a technology-presence rubric. This is not a hiring decision, and the set favors exact word matches.
 
-| Metric | Value |
-| --- | --- |
-| Verdict accuracy | 100.0% (20/20) |
-| Adjacent agreement | 100.0% |
-| Majority-class baseline (always `skip`) | 60.0% |
-| Required-skill hit rate | 100.0% |
-| Unsupported-skill rejection rate | 100.0% |
-| Citation validity | 100.0% |
-| Lexical recall@5 | 100.0% |
-| Paraphrase-probe recall@5 | 100.0% (8 probes) |
-| Fit latency p50 / p95 | 25.0 ms / 30.1 ms |
-| Retrieve p50 / generate p50 | 20.0 ms / 1.0 ms |
-| Mean prompt / completion tokens | 1340.3 / 327.9 (character/4 estimates) |
-| Mean cost | $0.000000 |
-| Failures | 0 |
+Groq (`openai/gpt-oss-20b`, temperature 0) matched the labeled verdict on **19/20 (95%)**, against an always-skip baseline of **60%**. Citation validity was **41/41**. Unsupported-skill rejection was **48/49**. The miss was Avery Chen against the AI-engineer post: labeled maybe, scored strong. The deterministic scorer got **20/20** on this same set because those labels line up with its keyword rules. Do not quote that 100% as accuracy on real resumes.
 
-Machine: Linux x86_64, 4 CPUs, Python 3.11.18, in-process Starlette TestClient, model already on disk. No browser hop. The deterministic provider made no Groq call, so cost is $0 rather than a Groq bill. When Groq is used, `app/agent/pricing.py` prices `openai/gpt-oss-20b` at $0.075 / 1M input tokens and $0.30 / 1M output tokens (Groq models page, checked 2026-11-12). The free tier still bills $0.
+A clean paced latency sample (N=5, one fit at a time, 62s apart) had a median of about **3.1s**. The full 20-pair Groq timings are mostly free-tier waits (8,000 tokens/minute), not model speed. Details are in the write-up.
 
-An earlier pass of the same script, before negated sentences were excluded, scored **85.0%** verdict accuracy. The three misses were a negated FastAPI line counted as a match, a negated Python line counted as a match, and a "TypeScript rather than JavaScript" bullet that required both languages. The table above is the re-run after those fixes.
+At temperature 0 the same pair scored **51** and then **90** on two runs. A single Groq number moves. The deterministic scorer is the one that repeats.
 
-Do not quote 100% as accuracy on real resumes. Twenty labeled pairs written to a rubric the scorer implements will look tidy. The citation check and the negation check are the parts worth trusting.
+![Local UI, scored by Groq](docs/screenshots/llm-result.png)
+
+That still is a local Groq run of a synthetic GenAI backend posting: 90/100, strong, with quotes. It is one draw, not the stable score.
 
 ## Run it
 
@@ -152,11 +144,11 @@ Tests use a hash embedder and the deterministic scorer so CI does not download a
 | GET | `/debug/retrieve` | Ranked chunks. Only when `ENV=dev` and `DEBUG_ROUTES=true` |
 | GET | `/samples` | Synthetic resume and two postings |
 
-Errors look like `{"error_code": "EMPTY_DOCUMENT", "message": "...", "details": {}, "request_id": "..."}`. Uploads over 5 MB and unknown file types return 422. LLM failures return 503, not a hang. `/fit` is limited to 10 requests per minute per IP.
+Errors look like `{"error_code": "EMPTY_DOCUMENT", "message": "...", "details": {}, "request_id": "..."}`. Uploads over 5 MB and unknown file types return 422. A Groq JSON failure or a rate limit that survives retries falls back to the deterministic scorer and says so in `provider` and `provider_note`. Other LLM failures return 503, not a hang. `/fit` is limited to 10 requests per minute per IP. The UI scores several jobs one at a time.
 
 ## Design decisions
 
-- **One graph, two providers.** Groq and the deterministic scorer share the nodes. Tests and a laptop demo do not depend on a key. If the key is set and Groq fails, the request is a 503. It does not silently switch scorers mid-report.
+- **One graph, two providers.** Groq and the deterministic scorer share the nodes. Tests and a laptop demo do not depend on a key. `LLM_PROVIDER=auto` calls Groq only when `GROQ_API_KEY` is set. For `openai/gpt-oss-20b` the call sets `reasoning_effort` to low and allows 4096 completion tokens, because a 1400-token cap was spent on reasoning and Groq answered `400 json_validate_failed` with an empty message. That JSON failure is retried once, then that step uses the deterministic scorer. A 429 is retried a few times with exponential backoff that honors `Retry-After` (capped at 8 seconds). If Groq is still rate-limited, the rest of the fit uses the deterministic scorer. `provider` is whichever scorer produced the judgments. `provider_note` says when a step fell back. Timeouts and 5xx after those retries are still a 503.
 - **The score is code.** Required items are 85% of the score, preferred items 15%. A required miss blocks `strong` even when the number is high. `strong` is every required item matched and score ≥ 75. `maybe` is required coverage ≥ 0.45 and score ≥ 45. Otherwise `skip`. Partial credit is 0.45. A bullet with "or" counts if either skill is present. Text after "rather than" is not a requirement.
 - **Citations are substrings.** The self-check throws away a match it cannot snap back onto the chunk. Recommended edits say to add a bullet only if the work is real.
 - **MiniLM via ONNX.** fastembed keeps the image smaller than torch and still runs `all-MiniLM-L6-v2`. Hash embeddings exist for tests only.
@@ -170,7 +162,8 @@ Errors look like `{"error_code": "EMPTY_DOCUMENT", "message": "...", "details": 
 - Negation is "the word not/no/never/without appears before the skill in the sentence." It will miss clever wording.
 - PDF text extraction fails on scans. Paste the text.
 - English only. One process. The rate limit is in memory and resets on restart.
-- Eval latency is a warm in-process CPU measurement. A free host that slept will be slower, and the first request may spend time downloading the embedding model.
+- Eval latency for the deterministic scorer is a warm in-process CPU measurement. The Groq figure to quote is the paced sample (median about 3.1s, N=5), not the rate-limited full run. A free host that slept will be slower, and the first request may spend time downloading the embedding model.
+- A Groq score is not stable. At temperature 0 the same pair scored 51 and then 90. The deterministic scorer repeats; the model does not.
 - Anyone who can open a public deploy can read what was uploaded.
 
 ## Deploy
@@ -201,7 +194,7 @@ No paid resources are required. Do not put a real resume on a public URL.
 
 Render sets `PORT`. The image runs `uvicorn --port $PORT` with one worker. After a fit with MiniLM loaded, the process was about **280 MiB** RSS, inside the 512 MB limit. OpenMP and OpenBLAS are pinned to one thread so they do not multiply that.
 
-The Blueprint prompts for `GROQ_API_KEY` (`sync: false`, so the value stays in the dashboard). Leave it empty to keep the deterministic scorer. The other variables are set in the file:
+The Blueprint prompts for `GROQ_API_KEY` (`sync: false`, so the value stays in the dashboard and never in git). Leave it empty to keep the deterministic scorer. Set it and `LLM_PROVIDER=auto` uses Groq, with the fallback above when Groq cannot return JSON or stays rate-limited. The other variables are set in the file:
 
 | Name | Value |
 | --- | --- |
@@ -227,7 +220,7 @@ The API does not fit a Vercel function. Chroma, fastembed, and the ONNX model be
 
 ### What not to set
 
-Do not commit `.env`. Do not point `VECTOR_BACKEND=pgvector` at a database without the `vector` extension. Do not set `EMBEDDING_BACKEND=hash` on a deploy you show people. That embedder is a test double.
+Do not commit `.env` or a Groq key. Do not point `VECTOR_BACKEND=pgvector` at a database without the `vector` extension. Do not set `EMBEDDING_BACKEND=hash` on a deploy you show people. That embedder is a test double.
 
 ## Resume lines
 

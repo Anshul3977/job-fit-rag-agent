@@ -30,6 +30,7 @@ export interface FitReport {
   requirement_results: RequirementResult[];
   model: string;
   provider: "groq" | "deterministic";
+  provider_note?: string;
 }
 
 export interface FitResponse {
@@ -42,6 +43,7 @@ export interface FitResponse {
   generate_ms: number;
   model: string;
   provider: string;
+  provider_note?: string;
   prompt_tokens: number;
   completion_tokens: number;
   cost_usd: number;

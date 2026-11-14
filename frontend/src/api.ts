@@ -69,10 +69,10 @@ export function ingestJob(text: string, title: string): Promise<{ job_id: string
   }).then((response) => parse(response));
 }
 
-export function fitBatch(resumeId: string, jobIds: string[]): Promise<{ results: FitResponse[] }> {
-  return fetch(`${BASE}/fit/batch`, {
+export function fitOne(resumeId: string, jobId: string): Promise<FitResponse> {
+  return fetch(`${BASE}/fit`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ resume_id: resumeId, job_ids: jobIds }),
-  }).then((response) => parse(response));
+    body: JSON.stringify({ resume_id: resumeId, job_id: jobId }),
+  }).then((response) => parse<FitResponse>(response));
 }

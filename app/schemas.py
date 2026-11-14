@@ -118,6 +118,7 @@ class FitReport(BaseModel):
     requirement_results: list[RequirementResult]
     model: str
     provider: Literal["groq", "deterministic"]
+    provider_note: str = ""
 
 
 class FitRequest(BaseModel):
@@ -146,6 +147,7 @@ class FitResponse(BaseModel):
     generate_ms: int
     model: str
     provider: str
+    provider_note: str = ""
     prompt_tokens: int
     completion_tokens: int
     cost_usd: float

@@ -390,6 +390,7 @@ def assemble_report(
     summary: str,
     model: str,
     provider: str,
+    provider_note: str = "",
 ) -> FitReport:
     results = build_results(requirements, judgments, evidence)
     rows = [(item.kind, item.status) for item in results]
@@ -446,6 +447,7 @@ def assemble_report(
         requirement_results=results,
         model=model,
         provider=provider,  # type: ignore[arg-type]
+        provider_note=provider_note,
     )
 
 

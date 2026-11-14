@@ -57,8 +57,10 @@ def run_fit(
     )
     report = FitReport.model_validate(state["report"])
     prompt_tokens, completion_tokens = provider.usage()
-    if provider.provider_id == "groq":
-        cost = estimate_cost_usd(provider.model_name, prompt_tokens, completion_tokens)
+    priced = getattr(provider, "priced_as_groq", None)
+    if priced is not None and priced():
+        price_model = getattr(provider, "price_model", lambda: provider.model_name)()
+        cost = estimate_cost_usd(price_model, prompt_tokens, completion_tokens)
         cost_usd = float(cost or 0.0)
     else:
         cost_usd = 0.0
@@ -92,6 +94,7 @@ def run_fit(
         generate_ms=generate_ms,
         model=report.model,
         provider=report.provider,
+        provider_note=report.provider_note,
         prompt_tokens=prompt_tokens,
         completion_tokens=completion_tokens,
         cost_usd=cost_usd,
@@ -100,6 +103,7 @@ def run_fit(
 
 
 def fit_response_from_run(run: Run, job_title: str) -> FitResponse:
+    report = FitReport.model_validate_json(run.report_json)
     return FitResponse(
         run_id=run.id,
         resume_id=run.resume_id,
@@ -110,8 +114,9 @@ def fit_response_from_run(run: Run, job_title: str) -> FitResponse:
         generate_ms=run.generate_ms,
         model=run.model,
         provider=run.provider,
+        provider_note=report.provider_note,
         prompt_tokens=run.prompt_tokens,
         completion_tokens=run.completion_tokens,
         cost_usd=run.cost_usd,
-        report=FitReport.model_validate_json(run.report_json),
+        report=report,
     )

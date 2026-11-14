@@ -76,6 +76,7 @@ def compile_fit_graph(provider: LLMProvider, retrieve: RetrieveFn):
             summary="",
             model=provider.model_name,
             provider=provider.provider_id,
+            provider_note=str(getattr(provider, "provider_note", "") or ""),
         )
         results = [item.model_dump() for item in report.requirement_results]
         return _stamp(
@@ -105,6 +106,7 @@ def compile_fit_graph(provider: LLMProvider, retrieve: RetrieveFn):
             summary=summary,
             model=provider.model_name,
             provider=provider.provider_id,
+            provider_note=str(getattr(provider, "provider_note", "") or ""),
         )
         return _stamp(
             state,

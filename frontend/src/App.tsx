@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ApiError,
-  fitBatch,
+  fitOne,
   getReady,
   getSamples,
   ingestJob,
@@ -33,7 +33,8 @@ function summaryText(result: FitResponse): string {
   return [
     `Job Fit — ${result.job_title}`,
     `Score: ${report.overall_score}/100 (${report.verdict})`,
-    `Model: ${result.model}`,
+    `Scorer: ${result.provider} (${result.model})`,
+    result.report.provider_note || "",
     "",
     report.summary,
     "",
@@ -59,6 +60,7 @@ export function App() {
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<FitResponse[]>([]);
+  const [progress, setProgress] = useState<string | null>(null);
   const [active, setActive] = useState(0);
   const [copied, setCopied] = useState(false);
 
@@ -110,15 +112,22 @@ export function App() {
       for (const job of filled) {
         ingested.push(await ingestJob(job.text, job.title));
       }
-      const batch = await fitBatch(
-        resume.resume_id,
-        ingested.map((job) => job.job_id),
-      );
-      setResults(batch.results);
+      const scored: FitResponse[] = [];
+      for (let index = 0; index < ingested.length; index += 1) {
+        if (ingested.length > 1) {
+          setProgress(
+            `Scoring job ${index + 1} of ${ingested.length}. Jobs run one at a time so a free Groq key is not asked for several fits at once.`,
+          );
+        }
+        scored.push(await fitOne(resume.resume_id, ingested[index].job_id));
+      }
+      setProgress(null);
+      setResults(scored);
       setActive(0);
       setStatus("done");
     } catch (err) {
       setStatus("error");
+      setProgress(null);
       setResults([]);
       if (err instanceof ApiError) {
         setError(`${err.errorCode}: ${err.message}`);
@@ -258,8 +267,8 @@ export function App() {
           </button>
           {status === "loading" ? (
             <p className="note" role="status">
-              Reading the resume, retrieving chunks per requirement, and checking that every match
-              quotes the source.
+              {progress ??
+                "Reading the resume, retrieving chunks per requirement, and checking that every match quotes the source."}
             </p>
           ) : null}
           {error ? (
@@ -290,7 +299,9 @@ export function App() {
       </main>
       <footer>
         Citations are exact substrings of retrieved resume chunks. A public deploy has no accounts —
-        treat uploads as shared. The deterministic scorer runs when <code>GROQ_API_KEY</code> is unset.
+        treat uploads as shared. The deterministic scorer runs when <code>GROQ_API_KEY</code> is
+        unset, and when Groq returns invalid JSON or stays rate-limited. The report names which
+        scorer produced the score.
       </footer>
     </div>
   );
@@ -371,9 +382,11 @@ function Report({
         </div>
       </div>
       <p className="summary">{report.summary}</p>
+      {report.provider_note ? <p className="note">{report.provider_note}</p> : null}
       <p className="meta">
+        {result.provider === "groq" ? "Groq" : "Deterministic scorer"} · {result.model} ·{" "}
         {result.latency_ms} ms total · retrieve {result.retrieve_ms} ms · graph {result.generate_ms}{" "}
-        ms · {result.model} · {result.prompt_tokens}+{result.completion_tokens} tokens · $
+        ms · {result.prompt_tokens}+{result.completion_tokens} tokens · $
         {result.cost_usd.toFixed(4)} · run {result.run_id}
       </p>
 
