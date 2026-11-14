@@ -1,0 +1,52 @@
+[
+ {
+  "id": "p01",
+  "status": 200,
+  "label": "strong",
+  "predicted": "strong",
+  "score": 93,
+  "latency_ms": 3288,
+  "generate_ms": 3255,
+  "client_s": 3.3
+ },
+ {
+  "id": "p02",
+  "status": 200,
+  "label": "maybe",
+  "predicted": "strong",
+  "score": 100,
+  "latency_ms": 3103,
+  "generate_ms": 3064,
+  "client_s": 3.12
+ },
+ {
+  "id": "p03",
+  "status": 200,
+  "label": "maybe",
+  "predicted": "maybe",
+  "score": 64,
+  "latency_ms": 2645,
+  "generate_ms": 2613,
+  "client_s": 2.66
+ },
+ {
+  "id": "p04",
+  "status": 200,
+  "label": "maybe",
+  "predicted": "maybe",
+  "score": 57,
+  "latency_ms": 2844,
+  "generate_ms": 2767,
+  "client_s": 2.89
+ },
+ {
+  "id": "p05",
+  "status": 200,
+  "label": "maybe",
+  "predicted": "maybe",
+  "score": 68,
+  "latency_ms": 3629,
+  "generate_ms": 3354,
+  "client_s": 3.72
+ }
+]
