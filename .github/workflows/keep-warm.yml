@@ -1,0 +1,33 @@
+name: Keep Render demo warm
+
+# Render's free web services sleep after 15 minutes without traffic, which
+# makes the first visitor wait ~30-60s. A light /health ping every 10 minutes
+# keeps the live demo awake. One free service running all month is ~744 h,
+# inside Render's 750 free instance-hours. GitHub may delay or skip scheduled
+# runs under load, so this reduces cold starts rather than guaranteeing none.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: keep-warm
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Ping /health
+        run: |
+          for attempt in 1 2 3; do
+            if curl -fsS --max-time 60 https://job-fit-rag-agent.onrender.com/health; then
+              echo; echo "warm"; exit 0
+            fi
+            echo "attempt $attempt failed, retrying"; sleep 10
+          done
+          echo "::warning::Render demo did not answer /health"

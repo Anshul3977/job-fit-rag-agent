@@ -4,7 +4,7 @@ Upload a resume and a job post. A retrieval agent scores the fit and cites the r
 
 Repository: [github.com/Anshul3977/job-fit-rag-agent](https://github.com/Anshul3977/job-fit-rag-agent)
 
-**Live demo:** [job-fit-rag-agent.onrender.com](https://job-fit-rag-agent.onrender.com). It runs on Render's free tier, so the first request after inactivity may take ~30–60s to wake up. The clip below is the rule-based scorer on that live site. No LLM key is configured there today, so the built-in sample resume and job descriptions are the best demo. Once a Groq key is set on Render, `LLM_PROVIDER=auto` uses Groq and falls back to the rule-based scorer if Groq returns invalid JSON or stays rate-limited. The key stays in the Render dashboard. It is not in this repo.
+**Live demo:** [job-fit-rag-agent.onrender.com](https://job-fit-rag-agent.onrender.com). It runs on Render's free tier. A scheduled GitHub Actions job ([keep-warm.yml](.github/workflows/keep-warm.yml)) pings `/health` every 10 minutes so the demo is usually awake; if GitHub delays that job, the first request can still take ~30–60s. The clip below is the rule-based scorer on that live site. No LLM key is configured there today, so the built-in sample resume and job descriptions are the best demo. Once a Groq key is set on Render, `LLM_PROVIDER=auto` uses Groq and falls back to the rule-based scorer if Groq returns invalid JSON or stays rate-limited. The key stays in the Render dashboard. It is not in this repo.
 
 ![Rule-based scorer on the live site](docs/demo.gif)
 
@@ -207,7 +207,7 @@ The Blueprint prompts for `GROQ_API_KEY` (`sync: false`, so the value stays in t
 | `EMBEDDING_MODEL` | `sentence-transformers/all-MiniLM-L6-v2` |
 | `VECTOR_BACKEND` | `chroma` |
 
-Free instances spin down and have no persistent disk, so SQLite resets on redeploy. The live service is [job-fit-rag-agent.onrender.com](https://job-fit-rag-agent.onrender.com). The first request after sleep can take about 30–60 seconds, and the first fit downloads MiniLM.
+Free instances spin down and have no persistent disk, so SQLite resets on redeploy. The live service is [job-fit-rag-agent.onrender.com](https://job-fit-rag-agent.onrender.com). The first request after sleep can take about 30–60 seconds, and the first fit downloads MiniLM. The keep-warm workflow pings `/health` every 10 minutes to avoid that; one free service awake all month is about 744 hours, inside Render's 750 free instance-hours, so disable the workflow if you add a second always-on free service.
 
 ### Vercel (frontend only)
 
@@ -224,11 +224,11 @@ Do not commit `.env` or a Groq key. Do not point `VECTOR_BACKEND=pgvector` at a 
 
 ## Resume lines
 
-Only the measured deterministic run. Delete a clause rather than guessing a Groq number.
+These match the headline numbers in [Measured results](#measured-results) and [eval/results.md](eval/results.md). The set is synthetic, so say so if asked.
 
-> Built a Job-Fit RAG agent (FastAPI, LangGraph, Chroma, local MiniLM) that scores a resume against a job post and cites the supporting lines. On 20 synthetic pairs: 100% agreement with technology-presence labels (60% majority-class baseline), 100% citation validity, paraphrase recall@5 100%, in-process p95 30.1 ms. Groq is wired; these figures are from the deterministic scorer.
+> Built a Job-Fit RAG agent (FastAPI, LangGraph, Chroma, MiniLM embeddings, Groq `gpt-oss-20b`) that scores a resume against a job post and cites the supporting resume lines. On a 20-pair synthetic labeled set, the LLM scorer matched 19/20 verdicts (95%, vs. a 60% majority-class baseline), with 100% citation validity (41/41) and 98% unsupported-skill rejection (48/49); paced median fit latency about 3.1 s.
 
-> Designed the FastAPI service for ingest, retrieval, and fit scoring with Pydantic validation, structured errors, SQL run history, Docker, and GitHub Actions. In-process `/fit` p95 30.1 ms on the labeled set.
+> Designed the FastAPI service for ingest, hybrid retrieval, and fit scoring with Pydantic validation, structured errors, SQL run history, Docker, an offline eval harness, and GitHub Actions CI, with a rule-based fallback scorer (p95 29.1 ms in-process) when the LLM is rate-limited.
 
 ## License
 
