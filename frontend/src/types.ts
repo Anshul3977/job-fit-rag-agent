@@ -31,6 +31,7 @@ export interface FitReport {
   model: string;
   provider: "groq" | "deterministic";
   provider_note?: string;
+  guardrail_flags?: string[];
 }
 
 export interface FitResponse {

@@ -22,6 +22,35 @@ jobs:
       - name: Pytest
         run: pytest -q
 
+  eval-gate:
+    # Regression gate on the labeled synthetic sets, with the real MiniLM embeddings.
+    runs-on: ubuntu-latest
+    needs: test
+    env:
+      EMBEDDING_CACHE_DIR: ${{ github.workspace }}/data/models
+      HF_HUB_DISABLE_PROGRESS_BARS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install
+        run: pip install -r requirements.txt -r requirements-dev.txt
+      - name: Cache embedding and reranker models
+        uses: actions/cache@v4
+        with:
+          path: data/models
+          key: models-minilm-l6-msmarco-l6-v1
+      - name: Fit eval (deterministic scorer) + gate
+        run: |
+          EVAL_OUT_DIR=/tmp/eval python eval/run_eval.py
+          python eval/gate.py /tmp/eval/results.json
+      - name: Retrieval benchmark (Recall@k, MRR) floor
+        run: python eval/retrieval_eval.py --check --no-write
+      - name: Prompt-injection set floor
+        run: python eval/injection_eval.py --check --no-write
+
   frontend:
     runs-on: ubuntu-latest
     defaults:

@@ -81,6 +81,10 @@ def ready(settings: Settings = Depends(get_settings)) -> ReadyResponse:
         embedding_model=settings.embedding_model if settings.embedding_backend == "fastembed" else "hash-384",
         llm_provider=settings.resolved_llm_provider,
         llm_model=model,
+        retrieval=settings.retrieval_mode,
+        reranker=(settings.reranker_model.strip() or "none")
+        if settings.retrieval_mode == "hybrid"
+        else "none",
     )
 
 

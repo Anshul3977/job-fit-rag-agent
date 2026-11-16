@@ -27,8 +27,10 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 LABELS_PATH = Path(__file__).resolve().parent / "labels.json"
 DATASET = Path(__file__).resolve().parent / "dataset"
-RESULTS_JSON = Path(__file__).resolve().parent / "results.json"
-RESULTS_MD = Path(__file__).resolve().parent / "results.md"
+# EVAL_OUT_DIR lets CI write somewhere other than the published results files.
+OUT_DIR = Path(os.environ.get("EVAL_OUT_DIR") or Path(__file__).resolve().parent)
+RESULTS_JSON = OUT_DIR / "results.json"
+RESULTS_MD = OUT_DIR / "results.md"
 
 
 def _prepare_env() -> str:
@@ -304,6 +306,7 @@ def main() -> None:
         ),
     }
     payload = {"metrics": metrics, "pairs": pair_rows, "probes": probe_rows}
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
     RESULTS_JSON.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     RESULTS_MD.write_text(_markdown(metrics, pair_rows, probe_rows), encoding="utf-8")
     print(_markdown(metrics, pair_rows, probe_rows))

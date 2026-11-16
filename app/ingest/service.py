@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.config import Settings
 from app.errors import AppError, ExtractError
+from app.guardrails import sanitize
 from app.ids import new_id
 from app.ingest.chunking import chunk_text, match_header
 from app.ingest.extract import ALLOWED_EXTENSIONS, extract_upload, usable_text
@@ -116,7 +117,8 @@ def ingest_resume_bytes(
     except ExtractError as exc:
         raise AppError(400, "EXTRACT_FAILED", str(exc)) from exc
     text = require_text(extracted.text)
-    drafts = chunk_text(text, extracted.page_spans)
+    indexed_text = sanitize(text)[0] if settings.guardrails else text
+    drafts = chunk_text(indexed_text, extracted.page_spans)
     if not drafts:
         raise AppError(400, "EMPTY_DOCUMENT", "The document produced no chunks.")
 

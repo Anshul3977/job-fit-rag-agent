@@ -1,0 +1,10 @@
+{
+  "_note": "CI regression gate. Values are measured results on the synthetic set minus a small tolerance; raise them when a change genuinely improves the numbers.",
+  "fit": {
+    "failures_max": 0,
+    "verdict_accuracy_min": 0.95,
+    "citation_validity_min": 1.0,
+    "unsupported_skill_rejection_rate_min": 0.98,
+    "skill_hit_rate_min": 0.98
+  }
+}

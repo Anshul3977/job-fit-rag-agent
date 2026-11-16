@@ -31,6 +31,8 @@ class ReadyResponse(BaseModel):
     embedding_model: str
     llm_provider: str
     llm_model: str
+    retrieval: str = "hybrid"
+    reranker: str = "none"
 
 
 class IngestResumeResponse(BaseModel):
@@ -119,6 +121,7 @@ class FitReport(BaseModel):
     model: str
     provider: Literal["groq", "deterministic"]
     provider_note: str = ""
+    guardrail_flags: list[str] = Field(default_factory=list)
 
 
 class FitRequest(BaseModel):

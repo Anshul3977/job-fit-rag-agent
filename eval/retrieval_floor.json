@@ -1,0 +1,11 @@
+{
+  "_note": "Measured 2026-11-17 with eval/retrieval_eval.py (see retrieval_results.md) minus 0.01 tolerance.",
+  "min": {
+    "per_resume.all.hybrid.recall@4": 0.959,
+    "per_resume.all.hybrid.mrr": 0.946,
+    "per_resume.requirement.hybrid.recall@4": 0.99,
+    "per_resume.all.hybrid_rerank.mrr": 0.955,
+    "pooled.all.hybrid.recall@4": 0.604,
+    "pooled.all.hybrid_rerank.recall@4": 0.664
+  }
+}

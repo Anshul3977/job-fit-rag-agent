@@ -383,6 +383,16 @@ function Report({
       </div>
       <p className="summary">{report.summary}</p>
       {report.provider_note ? <p className="note">{report.provider_note}</p> : null}
+      {report.guardrail_flags && report.guardrail_flags.length > 0 ? (
+        <div className="note guard" role="status">
+          <strong>Ignored {report.guardrail_flags.length} line{report.guardrail_flags.length > 1 ? "s" : ""} addressed to the scoring model.</strong>
+          <ul>
+            {report.guardrail_flags.map((flag) => (
+              <li key={flag}>{flag}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
       <p className="meta">
         {result.provider === "groq" ? "Groq" : "Deterministic scorer"} · {result.model} ·{" "}
         {result.latency_ms} ms total · retrieve {result.retrieve_ms} ms · graph {result.generate_ms}{" "}

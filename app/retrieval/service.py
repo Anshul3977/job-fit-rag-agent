@@ -11,6 +11,7 @@ from app.errors import AppError
 from app.ingest.chunking import SECTION_WEIGHTS, split_sections
 from app.models import Chunk
 from app.retrieval.embeddings import Embedder
+from app.retrieval.hybrid import Reranker, bm25_scores, rank_by, rrf
 from app.retrieval.store import VectorStore
 
 logger = logging.getLogger("jobfit")
@@ -96,6 +97,66 @@ def _lexical_backfill(db: Session, resume_id: str, query: str, already: list[dic
     return extra
 
 
+def _row_item(row: Chunk, score: float, via: str, fused: float | None = None) -> dict:
+    item = {
+        "chunk_id": row.id,
+        "text": row.text,
+        "section": row.section,
+        "score": float(score),
+        "page": row.page,
+        "char_start": row.char_start,
+        "char_end": row.char_end,
+        "via": via,
+    }
+    if fused is not None:
+        item["rrf"] = round(fused, 6)
+    return item
+
+
+def _hybrid(
+    db: Session,
+    store: VectorStore,
+    resume_id: str,
+    query: str,
+    embedding: list[float],
+    k: int,
+    reranker: Reranker | None,
+    shortlist: int,
+) -> list[dict]:
+    """Dense ranking + BM25 ranking over the resume's chunks, fused with RRF, optionally reranked."""
+    rows = db.query(Chunk).filter(Chunk.doc_id == resume_id, Chunk.doc_type == "resume").all()
+    if not rows:
+        return []
+    by_id = {row.id: row for row in rows}
+    hits = store.query(resume_id, embedding, max(k, len(rows)))
+    cosine = {hit.chunk_id: float(hit.score) for hit in hits if hit.chunk_id in by_id}
+    dense_rank = [hit.chunk_id for hit in hits if hit.chunk_id in by_id]
+    ids = list(by_id)
+    lexical = bm25_scores(query, [by_id[i].text for i in ids])
+    bm25_rank = rank_by(lexical, ids, drop_zero=True)
+    fused = rrf([dense_rank, bm25_rank])
+    order = [chunk_id for chunk_id, _ in fused]
+    if reranker is not None and order:
+        head = order[:shortlist]
+        try:
+            scores = reranker.scores(query, [by_id[i].text for i in head])
+            order = rank_by(scores, head) + order[shortlist:]
+        except Exception:
+            logger.exception("reranker failed; keeping the fused order")
+    fused_score = dict(fused)
+    in_dense, in_bm25 = set(dense_rank), set(bm25_rank)
+    found: list[dict] = []
+    for chunk_id in order[:k]:
+        via = (
+            "hybrid"
+            if chunk_id in in_dense and chunk_id in in_bm25
+            else ("bm25" if chunk_id in in_bm25 else "dense")
+        )
+        # `score` stays the cosine similarity so callers that weight by it keep working.
+        found.append(_row_item(by_id[chunk_id], cosine.get(chunk_id, 0.0), via, fused_score.get(chunk_id)))
+    return found
+
+
 def retrieve_chunks(
     db: Session,
     store: VectorStore,
@@ -103,8 +164,22 @@ def retrieve_chunks(
     resume_id: str,
     query: str,
     k: int = 4,
+    mode: str = "dense",
+    reranker: Reranker | None = None,
+    shortlist: int = 8,
 ) -> list[dict]:
+    """Top resume chunks for one query.
+
+    mode="dense": vector search, then a lexical save for named skills (the original path).
+    mode="hybrid": dense and BM25 rankings fused with reciprocal rank fusion, an optional
+    cross-encoder rerank of the shortlist, then the same lexical save.
+    """
     embedding = _embed(embedder, query[:2000])
+    if mode == "hybrid":
+        found = _hybrid(db, store, resume_id, query, embedding, k, reranker, shortlist)
+        # Fused order is kept; any lexical save goes after it.
+        found.extend(_lexical_backfill(db, resume_id, query, found))
+        return found[: max(k, min(len(found), k + 3))]
     hits = store.query(resume_id, embedding, k)
     found = _hydrate(db, hits)
     found.extend(_lexical_backfill(db, resume_id, query, found))

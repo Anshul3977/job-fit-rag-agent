@@ -5,10 +5,13 @@ from __future__ import annotations
 from app.config import get_settings
 from app.db import get_engine
 from app.retrieval.embeddings import Embedder, build_embedder
+from app.retrieval.hybrid import Reranker, build_reranker
 from app.retrieval.store import VectorStore, build_vector_store
 
 _embedder: Embedder | None = None
 _store: VectorStore | None = None
+_reranker: Reranker | None = None
+_reranker_loaded = False
 
 
 def get_embedder() -> Embedder:
@@ -35,7 +38,18 @@ def get_store() -> VectorStore:
     return _store
 
 
+def get_reranker() -> Reranker | None:
+    global _reranker, _reranker_loaded
+    if not _reranker_loaded:
+        settings = get_settings()
+        _reranker = build_reranker(settings.reranker_model, settings.embedding_cache_dir)
+        _reranker_loaded = True
+    return _reranker
+
+
 def reset_runtime() -> None:
-    global _embedder, _store
+    global _embedder, _store, _reranker, _reranker_loaded
     _embedder = None
     _store = None
+    _reranker = None
+    _reranker_loaded = False

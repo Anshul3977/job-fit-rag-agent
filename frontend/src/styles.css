@@ -147,6 +147,11 @@ textarea:focus, input:focus { outline: 2px solid #c9b89a; border-color: transpar
 .primary:not(:disabled):hover { background: #312c24; }
 
 .note { color: var(--muted); font-size: 14px; }
+.note.guard {
+  border-left: 3px solid var(--red);
+  padding: 6px 0 6px 12px;
+}
+.note.guard ul { margin: 6px 0 0; padding-left: 18px; }
 .error {
   background: var(--red-bg);
   color: var(--red);

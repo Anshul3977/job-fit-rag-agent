@@ -36,6 +36,15 @@ class Settings(BaseSettings):
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     embedding_cache_dir: str = "./data/models"
 
+    # hybrid = dense + BM25 fused with RRF; dense = vector search only (the original path)
+    retrieval_mode: str = "hybrid"
+    # Optional cross-encoder rerank of the fused shortlist, e.g. Xenova/ms-marco-MiniLM-L-6-v2.
+    # Off by default: it adds ~80 MB and a CPU pass per requirement.
+    reranker_model: str = ""
+    rerank_shortlist: int = 8
+    # Drop lines in resumes and job posts that address the model ("ignore previous instructions...").
+    guardrails: bool = True
+
     groq_api_key: str = ""
     groq_model: str = "openai/gpt-oss-20b"
     groq_timeout_seconds: float = 25.0

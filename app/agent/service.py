@@ -10,12 +10,15 @@ from sqlalchemy.orm import Session
 from app.agent.graph import compile_fit_graph
 from app.agent.llm import LLMProvider
 from app.agent.pricing import estimate_cost_usd
+from app.config import get_settings
 from app.errors import AppError
+from app.guardrails import sanitize, scan
 from app.ids import new_id
 from app.models import Job, Resume, Run
 from app.retrieval.embeddings import Embedder
 from app.retrieval.service import retrieve_chunks
 from app.retrieval.store import VectorStore
+from app.runtime import get_reranker
 from app.schemas import FitReport, FitResponse
 
 
@@ -32,8 +35,29 @@ def run_fit(
     if resume is None:
         raise AppError(404, "RESUME_NOT_FOUND", "No resume with that id.")
 
+    settings = get_settings()
+    reranker = get_reranker() if settings.retrieval_mode == "hybrid" else None
+
     def retrieve(query: str, k: int) -> list[dict]:
-        return retrieve_chunks(db, store, embedder, resume_id, query, k)
+        return retrieve_chunks(
+            db,
+            store,
+            embedder,
+            resume_id,
+            query,
+            k,
+            mode=settings.retrieval_mode,
+            reranker=reranker,
+            shortlist=settings.rerank_shortlist,
+        )
+
+    job_text = job.raw_text
+    guardrail_flags: list[str] = []
+    if settings.guardrails:
+        job_text, job_flags = sanitize(job.raw_text)
+        guardrail_flags = [f.describe("Resume") for f in scan(resume.raw_text)] + [
+            f.describe("Job post") for f in job_flags
+        ]
 
     provider.reset_usage()
     graph = compile_fit_graph(provider, retrieve)
@@ -41,7 +65,7 @@ def run_fit(
     state = graph.invoke(
         {
             "resume_id": resume_id,
-            "job_text": job.raw_text,
+            "job_text": job_text,
             "job_title": job.title,
             "timings": {},
         }
@@ -56,6 +80,7 @@ def run_fit(
         )
     )
     report = FitReport.model_validate(state["report"])
+    report.guardrail_flags = guardrail_flags
     prompt_tokens, completion_tokens = provider.usage()
     priced = getattr(provider, "priced_as_groq", None)
     if priced is not None and priced():
